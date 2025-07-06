@@ -1,0 +1,43 @@
+import java.util.*;
+
+class BookRepository {
+    public void saveBook(String title) {
+        System.out.println("Book saved: " + title);
+    }
+}
+
+
+class BookService {
+    private BookRepository bookRepository;
+
+  
+    public void setBookRepository(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    public void addBook(String title) {
+        if (bookRepository == null) {
+            System.out.println("BookRepository is not injected!");
+            return;
+        }
+        System.out.println("Adding book: " + title);
+        bookRepository.saveBook(title);
+    }
+}
+
+
+public class Main {
+    public static void main(String[] args) {
+       
+        BookRepository repository = new BookRepository();
+        BookService service = new BookService();
+
+        service.setBookRepository(repository);
+
+        service.addBook("Wings of Fire");
+    }
+}
+output
+Adding book: Wings of Fire
+Book saved: Wings of Fire
+
