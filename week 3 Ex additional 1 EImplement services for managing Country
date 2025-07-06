@@ -1,0 +1,132 @@
+spring.jpa.hibernate.ddl-auto=validate
+@Entity
+@Table(name = "country")
+public class Country {
+    @Id
+    @Column(name = "co_code")
+    private String code;
+
+    @Column(name = "co_name")
+    private String name;
+
+    // Constructors, Getters, Setters, toString
+}
+
+@Repository
+public interface CountryRepository extends JpaRepository<Country, String> {
+    List<Country> findByNameContainingIgnoreCase(String partialName);
+}
+
+public interface CountryService {
+    Country findCountryByCode(String code) throws CountryNotFoundException;
+    void addCountry(Country country);
+    void updateCountry(String code, String newName) throws CountryNotFoundException;
+    void deleteCountry(String code);
+    List<Country> findCountriesByPartialName(String partialName);
+}
+
+@Service
+public class CountryServiceImpl implements CountryService {
+
+    @Autowired
+    private CountryRepository countryRepository;
+
+    @Override
+    @Transactional
+    public Country findCountryByCode(String code) throws CountryNotFoundException {
+        return countryRepository.findById(code)
+                .orElseThrow(() -> new CountryNotFoundException("Country code not found: " + code));
+    }
+
+    @Override
+    @Transactional
+    public void addCountry(Country country) {
+        countryRepository.save(country);
+    }
+
+    @Override
+    @Transactional
+    public void updateCountry(String code, String newName) throws CountryNotFoundException {
+        Country country = findCountryByCode(code);
+        country.setName(newName);
+        countryRepository.save(country);
+    }
+
+    @Override
+    @Transactional
+    public void deleteCountry(String code) {
+        countryRepository.deleteById(code);
+    }
+
+    @Override
+    public List<Country> findCountriesByPartialName(String partialName) {
+        return countryRepository.findByNameContainingIgnoreCase(partialName);
+    }
+}
+
+public class CountryNotFoundException extends Exception {
+    public CountryNotFoundException(String message) {
+        super(message);
+    }
+}
+
+@SpringBootApplication
+public class OrmLearnApplication implements CommandLineRunner {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(OrmLearnApplication.class);
+
+    @Autowired
+    private CountryService countryService;
+
+    public static void main(String[] args) {
+        SpringApplication.run(OrmLearnApplication.class, args);
+    }
+
+    @Override
+    public void run(String... args) throws Exception {
+        LOGGER.info("Inside main");
+
+        addCountryTest();
+        getCountryTest();
+        updateCountryTest();
+        deleteCountryTest();
+        findByPartialNameTest();
+    }
+
+    private void getCountryTest() throws CountryNotFoundException {
+        LOGGER.info("Start getCountryTest");
+        Country country = countryService.findCountryByCode("IN");
+        LOGGER.debug("Country: {}", country);
+        LOGGER.info("End getCountryTest");
+    }
+
+    private void addCountryTest() {
+        LOGGER.info("Start addCountryTest");
+        Country country = new Country("ZZ", "Zedland");
+        countryService.addCountry(country);
+        LOGGER.info("End addCountryTest");
+    }
+
+    private void updateCountryTest() throws CountryNotFoundException {
+        LOGGER.info("Start updateCountryTest");
+        countryService.updateCountry("ZZ", "Zedlandia");
+        LOGGER.info("End updateCountryTest");
+    }
+
+    private void deleteCountryTest() {
+        LOGGER.info("Start deleteCountryTest");
+        countryService.deleteCountry("ZZ");
+        LOGGER.info("End deleteCountryTest");
+    }
+
+    private void findByPartialNameTest() {
+        LOGGER.info("Start findByPartialNameTest");
+        List<Country> result = countryService.findCountriesByPartialName("land");
+        LOGGER.debug("Matching Countries: {}", result);
+        LOGGER.info("End findByPartialNameTest");
+    }
+}
+
+
+
+
