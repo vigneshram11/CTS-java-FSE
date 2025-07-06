@@ -1,0 +1,96 @@
+package com.example.springdatajpa.model;
+
+import jakarta.persistence.*;
+
+@Entity
+public class Book {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
+
+    private String title;
+    private String author;
+
+    public Book() {}
+
+    public Book(String title, String author) {
+        this.title = title;
+        this.author = author;
+    }
+
+    // Getters and Setters
+    public Long getId() { return id; }
+    public String getTitle() { return title; }
+    public String getAuthor() { return author; }
+
+    public void setId(Long id) { this.id = id; }
+    public void setTitle(String title) { this.title = title; }
+    public void setAuthor(String author) { this.author = author; }
+}
+
+package com.example.springdatajpa.repository;
+
+import com.example.springdatajpa.model.Book;
+import org.springframework.data.jpa.repository.JpaRepository;
+
+public interface BookRepository extends JpaRepository<Book, Long> {
+}
+
+package com.example.springdatajpa.controller;
+
+import com.example.springdatajpa.model.Book;
+import com.example.springdatajpa.repository.BookRepository;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("/books")
+public class BookController {
+
+    @Autowired
+    private BookRepository bookRepo;
+
+    @GetMapping
+    public List<Book> getAllBooks() {
+        return bookRepo.findAll();
+    }
+
+    @PostMapping
+    public Book createBook(@RequestBody Book book) {
+        return bookRepo.save(book);
+    }
+
+    @GetMapping("/{id}")
+    public Book getBookById(@PathVariable Long id) {
+        return bookRepo.findById(id).orElse(null);
+    }
+
+    @DeleteMapping("/{id}")
+    public void deleteBook(@PathVariable Long id) {
+        bookRepo.deleteById(id);
+    }
+}
+
+spring.datasource.url=jdbc:h2:mem:booksdb
+spring.datasource.driverClassName=org.h2.Driver
+spring.datasource.username=sa
+spring.datasource.password=
+spring.jpa.database-platform=org.hibernate.dialect.H2Dialect
+spring.h2.console.enabled=true
+spring.jpa.hibernate.ddl-auto=update
+
+package com.example.springdatajpa;
+
+import org.springframework.boot.SpringApplication;
+import org.springframework.boot.autoconfigure.SpringBootApplication;
+
+@SpringBootApplication
+public class SpringDataJpaApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringDataJpaApplication.class, args);
+    }
+}
+
+
