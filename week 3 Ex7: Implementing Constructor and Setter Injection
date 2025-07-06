@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+           http://www.springframework.org/schema/beans
+           http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <!-- Repository Bean -->
+    <bean id="bookRepository" class="com.library.repository.BookRepository" />
+
+    <!-- Service Bean with constructor and setter injection -->
+    <bean id="bookService" class="com.library.service.BookService">
+        <!-- Constructor injection -->
+        <constructor-arg ref="bookRepository" />
+        
+        <!-- Setter injection -->
+        <property name="libraryName" value="Central Library"/>
+    </bean>
+
+</beans>
+
+package com.library.service;
+
+import com.library.repository.BookRepository;
+
+public class BookService {
+    private BookRepository bookRepository;
+    private String libraryName;
+
+    // Constructor injection
+    public BookService(BookRepository bookRepository) {
+        this.bookRepository = bookRepository;
+    }
+
+    // Setter injection
+    public void setLibraryName(String libraryName) {
+        this.libraryName = libraryName;
+    }
+
+    public void addBook(String bookName) {
+        System.out.println("[" + libraryName + "] Adding book: " + bookName);
+        bookRepository.save(bookName);
+    }
+}
+package com.library.repository;
+
+public class BookRepository {
+    public void save(String bookName) {
+        System.out.println("BookRepository: Saved '" + bookName + "'");
+    }
+}
+package com.library;
+
+import com.library.service.BookService;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class LibraryManagementApplication {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("applicationContext.xml");
+
+        BookService bookService = context.getBean("bookService", BookService.class);
+        bookService.addBook("Clean Code");
+    }
+}
+
