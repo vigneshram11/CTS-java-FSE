@@ -1,0 +1,82 @@
+///Model Class: Country.java
+If not already created:
+package com.cognizant.springlearn.model;
+
+public class Country {
+    private String code;
+    private String name;
+
+    // Getters, Setters, Constructor, toString()
+}
+///Spring XML Configuration (country.xml)
+Located in: src/main/resources/country.xml
+<util:list id="countryList" value-type="com.cognizant.springlearn.model.Country">
+    <bean class="com.cognizant.springlearn.model.Country">
+        <property name="code" value="IN" />
+        <property name="name" value="India" />
+    </bean>
+    <bean class="com.cognizant.springlearn.model.Country">
+        <property name="code" value="US" />
+        <property name="name" value="United States" />
+    </bean>
+    <!-- Add more countries -->
+</util:list>
+///Load the Bean in SpringLearnApplication
+@SpringBootApplication
+@ImportResource("classpath:country.xml")
+public class SpringLearnApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringLearnApplication.class, args);
+    }
+}
+///CountryNotFoundException.java
+
+@ResponseStatus(value = HttpStatus.NOT_FOUND, reason = "Country not found")
+public class CountryNotFoundException extends Exception {
+}
+///CountryService.java
+@Service
+public class CountryService {
+
+    @Autowired
+    private ApplicationContext context;
+
+    public Country getCountry(String code) throws CountryNotFoundException {
+        List<Country> countries = (List<Country>) context.getBean("countryList");
+
+        return countries.stream()
+                .filter(c -> c.getCode().equalsIgnoreCase(code))
+                .findFirst()
+                .orElseThrow(CountryNotFoundException::new);
+    }
+}
+///CountryController.java
+@RestController
+@RequestMapping("/countries")
+public class CountryController {
+
+    @Autowired
+    private CountryService countryService;
+
+    @GetMapping("/{code}")
+    public Country getCountry(@PathVariable String code) throws CountryNotFoundException {
+        return countryService.getCountry(code);
+    }
+}
+///Sample Request
+URL:
+GET http://localhost:8080/countries/in
+{
+  "code": "IN",
+  "name": "India"
+}
+ Invalid Country Code
+URL:
+GET http://localhost:8080/countries/xyz
+{
+  "timestamp": "2025-07-13T10:27:54.521+0000",
+  "status": 404,
+  "error": "Not Found",
+  "message": "Country not found",
+  "path": "/countries/xyz"
+}
