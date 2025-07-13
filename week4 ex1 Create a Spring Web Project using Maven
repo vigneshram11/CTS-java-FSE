@@ -1,0 +1,32 @@
+Open SpringLearnApplication.java:
+
+@SpringBootApplication
+public class SpringLearnApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringLearnApplication.class, args);
+    }
+}
+
+
+///Project Structure Overview
+Folder	Purpose
+src/main/java	Main source code
+src/main/resources	Properties, XML configs
+src/test/java	Unit test code
+pom.xml	Maven build config
+
+
+
+///Add Logging (Optional)
+application.properties
+logging.level.org.springframework=info
+logging.level.com.cognizant.springlearn=debug
+logging.pattern.console=%d{yyMMdd}|%d{HH:mm:ss.SSS}|%-20.20thread|%5p|%-25.25logger{25}|%25M|%m%n
+///Log in main method
+private static final Logger LOGGER = LoggerFactory.getLogger(SpringLearnApplication.class);
+
+public static void main(String[] args) {
+    LOGGER.info("Start");
+    SpringApplication.run(SpringLearnApplication.class, args);
+    LOGGER.info("End");
+}
