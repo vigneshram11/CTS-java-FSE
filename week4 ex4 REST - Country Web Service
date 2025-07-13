@@ -1,0 +1,76 @@
+///Model Class: Country.java
+package com.cognizant.springlearn.model;
+
+public class Country {
+    private String code;
+    private String name;
+
+    // Constructors
+    public Country() {}
+    public Country(String code, String name) {
+        this.code = code;
+        this.name = name;
+    }
+
+    // Getters and Setters
+    public String getCode() { return code; }
+    public void setCode(String code) { this.code = code; }
+
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+
+    @Override
+    public String toString() {
+        return "Country [code=" + code + ", name=" + name + "]";
+    }
+}
+/// Spring Configuration XML (Optional XML Setup)
+country.xml inside src/main/resources:
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="in" class="com.cognizant.springlearn.model.Country">
+        <property name="code" value="IN"/>
+        <property name="name" value="India"/>
+    </bean>
+</beans>
+/// Enable XML Loading (in Spring Boot)
+In your SpringLearnApplication.java:
+@SpringBootApplication
+@ImportResource("classpath:country.xml") // Import XML bean definitions
+public class SpringLearnApplication {
+    public static void main(String[] args) {
+        SpringApplication.run(SpringLearnApplication.class, args);
+    }
+}
+/// Controller: CountryController.java
+package com.cognizant.springlearn.controller;
+
+import com.cognizant.springlearn.model.Country;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.ApplicationContext;
+import org.springframework.web.bind.annotation.*;
+
+@RestController
+public class CountryController {
+
+    @Autowired
+    private ApplicationContext context;
+
+    @RequestMapping("/country")
+    public Country getCountryIndia() {
+        return (Country) context.getBean("in");
+    }
+}
+/// Run and Test
+Start Spring Boot App and open Postman or browser:
+GET http://localhost:8080/country
+Response:
+{
+  "code": "IN",
+  "name": "India"
+}
