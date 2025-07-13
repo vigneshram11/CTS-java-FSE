@@ -1,0 +1,62 @@
+/// Create the Country Java Bean
+package com.cognizant.springcore.model;
+
+public class Country {
+    private String code;
+    private String name;
+
+    // Getters and Setters
+    public String getCode() {
+        return code;
+    }
+
+    public void setCode(String code) {
+        this.code = code;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    @Override
+    public String toString() {
+        return "Country [code=" + code + ", name=" + name + "]";
+    }
+}
+/// Create country.xml Configuration File
+Location: src/main/resources/country.xml
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+       http://www.springframework.org/schema/beans
+       http://www.springframework.org/schema/beans/spring-beans.xsd">
+
+    <bean id="in" class="com.cognizant.springcore.model.Country">
+        <property name="code" value="IN"/>
+        <property name="name" value="India"/>
+    </bean>
+
+</beans>
+/// Write the Main Method to Load the Bean
+package com.cognizant.springcore;
+
+import com.cognizant.springcore.model.Country;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.support.ClassPathXmlApplicationContext;
+
+public class SpringCoreMain {
+    public static void main(String[] args) {
+        ApplicationContext context = new ClassPathXmlApplicationContext("country.xml");
+
+        Country country = (Country) context.getBean("in");
+
+        System.out.println(country);
+    }
+}
+Output:
+Country [code=IN, name=India]
